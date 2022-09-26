@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DeviceManagement_WebApp.Data;
 using DeviceManagement_WebApp.Models;
+using DeviceManagement_WebApp.Repository_Classes;
 
 namespace DeviceManagement_WebApp.Controllers
 {
@@ -22,7 +23,11 @@ namespace DeviceManagement_WebApp.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Category.ToListAsync());
+            CategoriesClass categoryClass = new CategoriesClass();
+
+            var results = categoryClass.GetAll();
+
+            return View(results);
         }
 
         // GET: Categories/Details/5

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DeviceManagement_WebApp.Data;
 using DeviceManagement_WebApp.Models;
+using DeviceManagement_WebApp.Repository_Classes;
 
 namespace DeviceManagement_WebApp.Controllers
 {
@@ -19,31 +20,30 @@ namespace DeviceManagement_WebApp.Controllers
             _context = context;
         }
 
+
         // GET: Devices
         public async Task<IActionResult> Index()
         {
-            var connectedOfficeContext = _context.Device.Include(d => d.Category).Include(d => d.Zone);
-            return View(await connectedOfficeContext.ToListAsync());
+            DevicesClass devicesClass = new DevicesClass();
+
+            var results = devicesClass.GetAll();
+
+            return View(results);
         }
 
         // GET: Devices/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
+            DevicesClass devicesClass = new DevicesClass();
+
+            var results = devicesClass.GetByID(id);
+
+            if (results == null)
             {
                 return NotFound();
             }
 
-            var device = await _context.Device
-                .Include(d => d.Category)
-                .Include(d => d.Zone)
-                .FirstOrDefaultAsync(m => m.DeviceId == id);
-            if (device == null)
-            {
-                return NotFound();
-            }
-
-            return View(device);
+            return View(results);
         }
 
         // GET: Devices/Create
@@ -61,8 +61,10 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("DeviceId,DeviceName,CategoryId,ZoneId,Status,IsActive,DateCreated")] Device device)
         {
+            DevicesClass devicesClass = new DevicesClass();
+
             device.DeviceId = Guid.NewGuid();
-            _context.Add(device);
+            devicesClass.Insert(device);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
 
