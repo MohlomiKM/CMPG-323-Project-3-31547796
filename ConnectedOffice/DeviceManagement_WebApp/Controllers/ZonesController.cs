@@ -7,27 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DeviceManagement_WebApp.Data;
 using DeviceManagement_WebApp.Models;
-using DeviceManagement_WebApp.Repository_Classes;
+using DeviceManagement_WebApp.Interface;
 
 namespace DeviceManagement_WebApp.Controllers
 {
     public class ZonesController : Controller
     {
+        private readonly IZonesInterface _zonesInterface;
         private readonly ConnectedOfficeContext _context;
 
-        public ZonesController(ConnectedOfficeContext context)
+        /*public ZonesController(ConnectedOfficeContext context)
         {
             _context = context;
+        }*/
+
+        public ZonesController(IZonesInterface zonesInterface)
+        {
+            _zonesInterface = zonesInterface;
         }
 
         // GET: Zones
         public async Task<IActionResult> Index()
         {
-            ZonesClass zonesClass = new ZonesClass();
-
-            var results = zonesClass.GetAll();
-
-            return View(results);
+            return View(_zonesInterface.GetAll());
         }
 
         // GET: Zones/Details/5
@@ -38,14 +40,14 @@ namespace DeviceManagement_WebApp.Controllers
                 return NotFound();
             }
 
-            var zone = await _context.Zone
-                .FirstOrDefaultAsync(m => m.ZoneId == id);
-            if (zone == null)
+            //var zone = await _context.Zone.FirstOrDefaultAsync(m => m.ZoneId == id);
+            var results = _zonesInterface.GetByID(id);
+            if (results == null)
             {
                 return NotFound();
             }
 
-            return View(zone);
+            return View(results);
         }
 
         // GET: Zones/Create
@@ -61,11 +63,14 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ZoneId,ZoneName,ZoneDescription,DateCreated")] Zone zone)
         {
-            zone.ZoneId = Guid.NewGuid();
-            _context.Add(zone);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                zone.ZoneId = Guid.NewGuid();
+                _zonesInterface.Insert(zone);
+                _zonesInterface.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(zone);
         }
 
         // GET: Zones/Edit/5
@@ -116,6 +121,19 @@ namespace DeviceManagement_WebApp.Controllers
 
         }
 
+        public ActionResult Update(Guid? id)
+        {
+            return View(_zonesInterface.GetByID(id));
+        }
+
+        [HttpPost]
+        public ActionResult Update(Zone zone)
+        {
+            _zonesInterface.Update(zone);
+            _zonesInterface.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Zones/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -139,9 +157,9 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var zone = await _context.Zone.FindAsync(id);
-            _context.Zone.Remove(zone);
-            await _context.SaveChangesAsync();
+            //var zone = await _context.Zone.FindAsync(id);
+            _zonesInterface.Delete(id);
+            _zonesInterface.Save();
             return RedirectToAction(nameof(Index));
         }
 

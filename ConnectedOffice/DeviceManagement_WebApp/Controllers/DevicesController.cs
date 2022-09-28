@@ -8,36 +8,43 @@ using Microsoft.EntityFrameworkCore;
 using DeviceManagement_WebApp.Data;
 using DeviceManagement_WebApp.Models;
 using DeviceManagement_WebApp.Repository_Classes;
+using DeviceManagement_WebApp.Interface;
 
 namespace DeviceManagement_WebApp.Controllers
 {
     public class DevicesController : Controller
     {
+        private readonly IDevicesInterface _devicesInterface;
         private readonly ConnectedOfficeContext _context;
 
-        public DevicesController(ConnectedOfficeContext context)
+        /*public DevicesController(ConnectedOfficeContext context)
         {
             _context = context;
-        }
+        }*/
 
+        public DevicesController(IDevicesInterface devicesInterface)
+        {
+            _devicesInterface = devicesInterface;
+        }
 
         // GET: Devices
         public async Task<IActionResult> Index()
         {
-            DevicesClass devicesClass = new DevicesClass();
-
-            var results = devicesClass.GetAll();
-
-            return View(results);
+            /*var connectedOfficeContext = _context.Device.Include(d => d.Category).Include(d => d.Zone);
+            return View(await connectedOfficeContext.ToListAsync());*/
+            return View(_devicesInterface.GetAll());
         }
 
         // GET: Devices/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            DevicesClass devicesClass = new DevicesClass();
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            var results = devicesClass.GetByID(id);
-
+            //var device = await _context.Device.Include(d => d.Category).Include(d => d.Zone).FirstOrDefaultAsync(m => m.DeviceId == id);
+            var results = _devicesInterface.GetByID(id);
             if (results == null)
             {
                 return NotFound();
@@ -49,8 +56,8 @@ namespace DeviceManagement_WebApp.Controllers
         // GET: Devices/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Category, "CategoryId", "CategoryName");
-            ViewData["ZoneId"] = new SelectList(_context.Zone, "ZoneId", "ZoneName");
+            ViewData["CategoryId"] = new SelectList("CategoryId", "CategoryName");
+            ViewData["ZoneId"] = new SelectList("ZoneId", "ZoneName");
             return View();
         }
 
@@ -61,14 +68,15 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("DeviceId,DeviceName,CategoryId,ZoneId,Status,IsActive,DateCreated")] Device device)
         {
-            DevicesClass devicesClass = new DevicesClass();
-
-            device.DeviceId = Guid.NewGuid();
-            devicesClass.Insert(device);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-
-
+            if (ModelState.IsValid)
+            {
+                device.DeviceId = Guid.NewGuid();
+                _devicesInterface.Insert(device);
+                _devicesInterface.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(device);
+ 
         }
 
         // GET: Devices/Edit/5
@@ -120,6 +128,19 @@ namespace DeviceManagement_WebApp.Controllers
 
         }
 
+        public ActionResult Update(Guid? id)
+        {
+            return View(_devicesInterface.GetByID(id));
+        }
+
+        [HttpPost]
+        public ActionResult Update(Device device)
+        {
+            _devicesInterface.Update(device);
+            _devicesInterface.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Devices/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -145,9 +166,9 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var device = await _context.Device.FindAsync(id);
-            _context.Device.Remove(device);
-            await _context.SaveChangesAsync();
+            //var device = await _context.Device.FindAsync(id);
+            _devicesInterface.Delete(id);
+            _devicesInterface.Save();
             return RedirectToAction(nameof(Index));
         }
 

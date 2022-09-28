@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DeviceManagement_WebApp.Interfaces
+namespace DeviceManagement_WebApp.Interface
 {
-    interface IZonesInterface
+    public interface IZonesInterface
     {
         IEnumerable<Zone> GetAll();
         Zone GetByID(Guid? id);
         void Insert(Zone zoneobj);
         void Update(Zone zoneobj);
         void Delete(Guid? id);
-        void SaveChanges();
+        void Save();
     }
 }

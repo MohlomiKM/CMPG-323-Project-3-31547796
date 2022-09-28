@@ -1,5 +1,8 @@
 ﻿using DeviceManagement_WebApp.Data;
+using DeviceManagement_WebApp.Interface;
 using DeviceManagement_WebApp.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,12 +13,12 @@ namespace DeviceManagement_WebApp.Repository_Classes
 {
     public class DevicesClass:IDevicesInterface
     {
-        protected readonly ConnectedOfficeContext _context = null;
+        private ConnectedOfficeContext _context;
         
-        public DevicesClass()
+        /*public DevicesClass()
         {
             this._context = new ConnectedOfficeContext();
-        }
+        }*/
 
         public DevicesClass(ConnectedOfficeContext _context)
         {
@@ -48,7 +51,7 @@ namespace DeviceManagement_WebApp.Repository_Classes
             _context.Device.Remove(existing);
         }
 
-        public void SaveChanges()
+        public void Save()
         {
             _context.SaveChanges();
         }

@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DeviceManagement_WebApp.Interfaces
+namespace DeviceManagement_WebApp.Interface
 {
-    interface ICategoryInterface
+    public interface ICategoriesInterface
     {
         IEnumerable<Category> GetAll();
         Category GetByID(Guid? id);
         void Insert(Category categoryobj);
         void Update(Category categoryobj);
         void Delete(Guid? id);
-        void SaveChanges();
+        void Save();
     }
 }

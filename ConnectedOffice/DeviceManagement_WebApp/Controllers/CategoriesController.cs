@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,26 +9,29 @@ using Microsoft.EntityFrameworkCore;
 using DeviceManagement_WebApp.Data;
 using DeviceManagement_WebApp.Models;
 using DeviceManagement_WebApp.Repository_Classes;
+using DeviceManagement_WebApp.Interface;
 
 namespace DeviceManagement_WebApp.Controllers
 {
     public class CategoriesController : Controller
     {
+        private readonly ICategoriesInterface _categoriesInterface;
         private readonly ConnectedOfficeContext _context;
 
-        public CategoriesController(ConnectedOfficeContext context)
+        /*public CategoriesController(ConnectedOfficeContext context)
         {
             _context = context;
+        }*/
+
+        public CategoriesController(ICategoriesInterface categoriesInterface)
+        {
+            _categoriesInterface = categoriesInterface;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            CategoriesClass categoryClass = new CategoriesClass();
-
-            var results = categoryClass.GetAll();
-
-            return View(results);
+            return View(_categoriesInterface.GetAll());
         }
 
         // GET: Categories/Details/5
@@ -38,14 +42,14 @@ namespace DeviceManagement_WebApp.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Category
-                .FirstOrDefaultAsync(m => m.CategoryId == id);
-            if (category == null)
+            //var category = await _context.Category.FirstOrDefaultAsync(m => m.CategoryId == id);
+            var results = _categoriesInterface.GetByID(id);
+            if (results == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(results);
         }
 
         // GET: Categories/Create
@@ -61,10 +65,14 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,CategoryDescription,DateCreated")] Category category)
         {
-            category.CategoryId = Guid.NewGuid();
-            _context.Add(category);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (ModelState.IsValid)
+            {
+                category.CategoryId = Guid.NewGuid();
+                _categoriesInterface.Insert(category);
+                _categoriesInterface.Save();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(category);
         }
 
         // GET: Categories/Edit/5
@@ -113,6 +121,19 @@ namespace DeviceManagement_WebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public ActionResult Update(Guid? id)
+        {
+            return View(_categoriesInterface.GetByID(id));
+        }
+
+        [HttpPost]
+        public ActionResult Update(Category category)
+        {
+            _categoriesInterface.Update(category);
+            _categoriesInterface.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -136,9 +157,9 @@ namespace DeviceManagement_WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var category = await _context.Category.FindAsync(id);
-            _context.Category.Remove(category);
-            await _context.SaveChangesAsync();
+            //var category = await _context.Category.FindAsync(id);
+            _categoriesInterface.Delete(id);
+            _categoriesInterface.Save();
             return RedirectToAction(nameof(Index));
         }
 

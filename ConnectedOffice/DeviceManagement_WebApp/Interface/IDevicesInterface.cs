@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DeviceManagement_WebApp.Repository_Classes
+namespace DeviceManagement_WebApp.Interface
 {
     public interface IDevicesInterface
     {
@@ -13,6 +13,6 @@ namespace DeviceManagement_WebApp.Repository_Classes
         void Insert(Device deviceobj);
         void Update(Device deviceobj);
         void Delete(Guid? id);
-        void SaveChanges();
+        void Save();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using DeviceManagement_WebApp.Data;
-using DeviceManagement_WebApp.Interfaces;
+using DeviceManagement_WebApp.Interface;
 using DeviceManagement_WebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,12 +11,12 @@ namespace DeviceManagement_WebApp.Repository_Classes
 {
     public class ZonesClass:IZonesInterface
     {
-        protected readonly ConnectedOfficeContext _context = null;
+        private ConnectedOfficeContext _context;
 
-        public ZonesClass()
+        /*public ZonesClass()
         {
             this._context = new ConnectedOfficeContext();
-        }
+        }*/
 
         public ZonesClass(ConnectedOfficeContext _context)
         {
@@ -49,7 +49,7 @@ namespace DeviceManagement_WebApp.Repository_Classes
             _context.Zone.Remove(existing);
         }
 
-        public void SaveChanges()
+        public void Save()
         {
             _context.SaveChanges();
         }

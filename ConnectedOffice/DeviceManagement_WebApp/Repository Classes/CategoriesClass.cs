@@ -1,5 +1,5 @@
 ﻿using DeviceManagement_WebApp.Data;
-using DeviceManagement_WebApp.Interfaces;
+using DeviceManagement_WebApp.Interface;
 using DeviceManagement_WebApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace DeviceManagement_WebApp.Repository_Classes
 {
-    public class CategoriesClass:ICategoryInterface
+    public class CategoriesClass:ICategoriesInterface
     {
-        protected readonly ConnectedOfficeContext _context = null;
+        private ConnectedOfficeContext _context;
 
-        public CategoriesClass()
+        /*public CategoriesClass()
         {
             this._context = new ConnectedOfficeContext();
-        }
+        }*/
 
         public CategoriesClass(ConnectedOfficeContext _context)
         {
@@ -49,7 +49,7 @@ namespace DeviceManagement_WebApp.Repository_Classes
             _context.Category.Remove(existing);
         }
 
-        public void SaveChanges()
+        public void Save()
         {
             _context.SaveChanges();
         }
