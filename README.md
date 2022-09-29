@@ -8,6 +8,8 @@ Users Manage a record of all their devices specifying the category and zones of 
 2. Users Create Zones (each zone with its description) for thier devices.
 3. Users thereafter Create Devices with the new or previously created category & zone available on the dropdown list relating to the device, lastly users add the status of the device.
 
+Users can therefore edit, view details & delete the created categories, zones & devices.
+
 ## Implementation
 Tier 2 Repository Pattern is implemented for Project 3 Connected Office Web App
 1. Use of 3 Interfaces (Each for the 3 entities*)
